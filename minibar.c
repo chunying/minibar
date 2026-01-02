@@ -20,6 +20,7 @@ static FILE *_outdev = NULL;
 static int  _nrows = 0;
 static int  _maxrow = 0;
 static int  _width = -1;
+static int  _rendered = 0;
 static minibar_t *_avail_head = NULL;
 static minibar_t *_inuse_head = NULL;
 static minibar_t *_inuse_tail = NULL;
@@ -116,11 +117,8 @@ void
 minibar_close() {
 	if(_outdev == NULL) return;
 	if(_nrows > 0) {
-		/* move cursor down */
 		if(_dumb) {
 			fprintf(_outdev, "\n\r");
-		} else {
-			fprintf(_outdev, "\x1b[%dB\r", _nrows);
 		}
 	}
 	_nrows = _maxrow = 0;
@@ -145,14 +143,15 @@ minibar_println(const char *fmt, ...) {
 	va_list ap;
 	if(_outdev == NULL) return;
 
-	if(_dumb)
+	if(_dumb) {
 		fprintf(_outdev, "\r");
-	else
-		fprintf(_outdev, "\r\x1b[2K"); 
+	} else if(_rendered > 0) {
+		fprintf(_outdev, "\r\x1b[%dA2K", _rendered); 
+	}
 	va_start(ap, fmt);
 	vfprintf(_outdev, fmt, ap);
 	va_end(ap);
-	fprintf(_outdev, "\n");
+	fprintf(_outdev, "\n\r");
 
 	minibar_refresh();
 }
@@ -200,6 +199,10 @@ void
 minibar_complete(minibar_t *bar) {
 	if(bar == NULL) return;
 
+	if(!_dumb && _rendered > 0) {
+		fprintf(_outdev, "\r\x1b[%dA", _rendered);
+		_rendered = 0;
+	}
 	minibar_plot1(bar);
 
 	/** must be in the inuse list **/
@@ -324,10 +327,12 @@ minibar_refresh() {
 		goto quit;
 	}
 	if(_width < 3) return;
-	for(curr = _inuse_head; curr != NULL; curr = curr->next)
+	if(_rendered > 0)
+		fprintf(_outdev, "\x1b[%dA\r", _rendered);
+	_rendered = 0;
+	for(curr = _inuse_head; curr != NULL; curr = curr->next) {
 		minibar_plot1(curr);
-	if(_nrows > 0) {
-		fprintf(_outdev, "\x1b[%dA\r", _nrows);
+		_rendered++;
 	}
 quit:
 	fflush(_outdev);
