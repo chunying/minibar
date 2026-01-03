@@ -18,6 +18,7 @@ static int _dumb = 0;
 static unsigned _nplot = 0;
 
 static FILE *_outdev = NULL;
+static int  _initialized = 0;
 static int  _nrows = 0;
 static int  _maxrow = 0;
 static int  _width = -1;
@@ -89,6 +90,10 @@ support_ansi(FILE *dev) {
 
 int
 minibar_open(FILE *dev, int maxrow) {
+	if(_initialized) {
+		return 0;
+	}
+
 	if(minibar_alloc(maxrow) <= 0) {
 		return -1;
 	}
@@ -113,11 +118,14 @@ minibar_open(FILE *dev, int maxrow) {
 	} else {
 		_dumb = 1;
 	}
+
+	_initialized = 1;
 	return 0;
 }
 
 void
 minibar_close() {
+	if(_initialized == 0) return;
 	if(_outdev == NULL) return;
 	if(_nrows > 0) {
 		if(_dumb) {
@@ -134,6 +142,7 @@ minibar_close() {
 	} else if(_outdev == stdout) {
 		setvbuf(_outdev, NULL, _IOLBF, 0);
 	}
+	_initialized = 0;
 }
 
 void
@@ -303,6 +312,8 @@ minibar_plot1(minibar_t *bar) {
 #define W_BARMAX	64	/* exclude [ and ] */
 	/* name + [ bar ] + 8-byte for progress ' OOO.O%\n' */
 	int w_name, w_bar;
+	if(bar == NULL) return;
+
 	if(_dumb) {
 		double progress = bar->progress;
 		if(progress < 0.0)   progress = 0.0;
@@ -342,6 +353,9 @@ minibar_plot1(minibar_t *bar) {
 void
 minibar_refresh() {
 	minibar_t *curr;
+
+	if(_initialized == 0) return;
+
 	if(_dumb) {
 		fprintf(_outdev, "\r");
 		if(_inuse_head != NULL) {
