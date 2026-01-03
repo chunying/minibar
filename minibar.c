@@ -125,6 +125,12 @@ minibar_close() {
 	_avail_head = _inuse_head = _inuse_tail = NULL;
 	if(_bars != NULL) free(_bars);
 	_bars = NULL;
+	/* restore buffering mode */
+	if(_outdev == stderr) {
+		setvbuf(_outdev, NULL, _IONBF, 0);
+	} else if(_outdev == stdout) {
+		setvbuf(_outdev, NULL, _IOLBF, 0);
+	}
 }
 
 void
