@@ -120,6 +120,44 @@ pthread_cond_signal(pthread_cond_t *cond) {
 	return 0;
 }
 
+/* barrier */
+STATIC int
+pthread_barrier_init(pthread_barrier_t *barrier, void *attr, unsigned count) {
+	(void)attr;
+
+	if (count == 0)
+		return -1;
+
+	if (!InitializeSynchronizationBarrier(
+		barrier, count, -1)) {
+		return -1;
+	}
+
+	return 0;
+}
+
+STATIC int
+pthread_barrier_wait(pthread_barrier_t *barrier) {
+	BOOL last = EnterSynchronizationBarrier(
+		barrier,
+		SYNCHRONIZATION_BARRIER_FLAGS_BLOCK_ONLY);
+
+	/*
+	 * POSIX requires exactly ONE thread to return
+	 * PTHREAD_BARRIER_SERIAL_THREAD
+	 */
+	if (last)
+		return PTHREAD_BARRIER_SERIAL_THREAD;
+
+	return 0;
+}
+
+STATIC int
+pthread_barrier_destroy(pthread_barrier_t *barrier) {
+	DeleteSynchronizationBarrier(barrier);
+	return 0;
+}
+
 #endif	/* _WIN32 */
 
 #endif	/* __PTHREAD_WIN32_C__ */

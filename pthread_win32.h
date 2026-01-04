@@ -12,6 +12,8 @@
 #include <windows.h>
 #include <process.h>
 
+#define	PTHREAD_BARRIER_SERIAL_THREAD	1
+
 typedef struct {
 	HANDLE handle;
 	unsigned thread_id;
@@ -20,6 +22,7 @@ typedef struct {
 
 typedef CRITICAL_SECTION   pthread_mutex_t;
 typedef CONDITION_VARIABLE pthread_cond_t;
+typedef SYNCHRONIZATION_BARRIER pthread_barrier_t;
 
 /* thread */
 STATIC int pthread_create(pthread_t *thread, void *attr, void *(*start_routine)(void *), void *arg);
@@ -38,6 +41,11 @@ STATIC int pthread_cond_destroy(pthread_cond_t *cond);
 STATIC int pthread_cond_wait(pthread_cond_t *cond, pthread_mutex_t *mutex);
 STATIC int pthread_cond_broadcast(pthread_cond_t *cond);
 STATIC int pthread_cond_signal(pthread_cond_t *cond);
+
+/* barrier */
+STATIC int pthread_barrier_init(pthread_barrier_t *barrier, void *attr, unsigned count);
+STATIC int pthread_barrier_wait(pthread_barrier_t *barrier);
+STATIC int pthread_barrier_destroy(pthread_barrier_t *barrier);
 
 #endif /* _WIN32 */
 
