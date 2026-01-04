@@ -5,7 +5,7 @@ CC	= gcc
 CFLAGS	= -Wall -g
 LDFLAGS	= -L. -lminibar -lm -pthread
 
-PROGS	= libminibar.a testbar1 testbar
+PROGS	= libminibar.a testbar1 testbar threadbar
 
 all: $(PROGS)
 
@@ -19,6 +19,9 @@ testbar1: libminibar.a testbar1.o
 	$(CC) -o $@ $@.o $(LDFLAGS)
 
 testbar: libminibar.a testbar.o
+	$(CC) -o $@ $@.o $(LDFLAGS)
+
+threadbar: libminibar.a threadbar.o
 	$(CC) -o $@ $@.o $(LDFLAGS)
 
 clean:
