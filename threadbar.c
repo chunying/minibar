@@ -14,6 +14,8 @@
 #include "pthread_win32.c"
 #endif
 
+#include "pthread_barrier.c"
+
 /* my secret job format */
 typedef struct job_s {
 	char title[48];
