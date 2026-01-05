@@ -1,7 +1,7 @@
 CC      = cl
 AR      = lib
 CFLAGS  = /nologo /utf-8 /W4 /Zi /MD
-LDFLAGS = libminibar.lib
+LDFLAGS = libminibar.lib pthread_compat/libpthread_compat.lib
 
 PROGS   = testbar1.exe testbar.exe threadbar.exe
 OBJS    = minibar.obj testbar1.obj testbar.obj threadbar.obj
@@ -11,16 +11,23 @@ all: libminibar.lib $(PROGS)
 %.obj: %.c minibar.h
 	$(CC) $(CFLAGS) /c $<
 
-libminibar.lib: minibar.obj minibar.h
+pthread_compat/libpthread_compat.lib:
+	cd pthread_compat_src && nmake /f NMakefile all
+	@-mkdir pthread_compat
+	copy pthread_compat_src\*.h pthread_compat
+	copy pthread_compat_src\*.lib pthread_compat
+	cd pthread_compat_src && nmake /f NMakefile clean
+
+libminibar.lib: pthread_compat/libpthread_compat.lib minibar.obj minibar.h
 	$(AR) /nologo /OUT:$@ minibar.obj
 
-testbar1.exe: testbar1.obj libminibar.lib
+testbar1.exe: testbar1.obj libminibar.lib pthread_compat/libpthread_compat.lib
 	$(CC) $(CFLAGS) /Fe:$@ testbar1.obj $(LDFLAGS)
 
-testbar.exe: testbar.obj libminibar.lib
+testbar.exe: testbar.obj libminibar.lib pthread_compat/libpthread_compat.lib
 	$(CC) $(CFLAGS) /Fe:$@ testbar.obj $(LDFLAGS)
 
-threadbar.exe: threadbar.obj libminibar.lib
+threadbar.exe: threadbar.obj libminibar.lib pthread_compat/libpthread_compat.lib
 	$(CC) $(CFLAGS) /Fe:$@ threadbar.obj $(LDFLAGS)
 
 clean:

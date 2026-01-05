@@ -19,7 +19,7 @@
 /* a minimal non-curses progress bar in C */
 
 #ifdef _WIN32
-#include "pthread_win32.c"
+#include "pthread_compat/pthread_compat.h"
 #endif
 
 static int _dumb = 0;

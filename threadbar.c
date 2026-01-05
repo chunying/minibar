@@ -10,10 +10,6 @@
 #endif
 #include "minibar.h"
 
-#ifdef _WIN32
-#include "pthread_win32.c"
-#endif
-
 #include "pthread_compat/pthread_compat.h"
 
 /* my secret job format */
