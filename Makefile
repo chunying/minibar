@@ -30,4 +30,4 @@ threadbar: threadbar.o minibar.o $(PTHREAD_COMPAT_OBJS)
 	$(CC) -o $@ $^ $(LDFLAGS)
 
 clean:
-	rm -f *.o $(PROGS)
+	rm -f *.o pthread_compat/*.o $(PROGS)
