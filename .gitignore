@@ -1,5 +1,3 @@
-/pthread_compat
-
 *.o
 *.obj
 *.a
